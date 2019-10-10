@@ -20,7 +20,6 @@ app.config['MONGO_URI'] = 'mongodb+srv://carlasendra:csb@cluster0-le5v0.mongodb.
 
 mongo = PyMongo(app)
 
-
 if __name__ == '__main__':
     app.run(debug=True)
 
