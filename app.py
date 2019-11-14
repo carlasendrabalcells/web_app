@@ -1,7 +1,7 @@
 from flask import Flask, make_response, request
 from flask import abort, jsonify, redirect, render_template
 from flask import request, url_for
-from .forms import ProductForm
+from forms import ProductForm
 from flask_pymongo import PyMongo
 import json
 import bson
@@ -9,8 +9,8 @@ from bson.objectid import ObjectId
 from flask import render_template
 from flask_login import LoginManager, current_user
 from flask_login import login_user, logout_user
-from .forms import LoginForm
-from .models import User
+from forms import LoginForm
+from models import User
 from flask_login import login_required
 
 app = Flask(__name__)
@@ -78,7 +78,8 @@ def index():
     return redirect(url_for('products_list'))
 
 
-@app.errorhandler(404)  # function that will be called by the app when an error is found in this case
+# function that will be called by the app when an error is found in this case
+@app.errorhandler(404)
 def error_not_found(error):
     return render_template('error/not_found.html'), 404
 
