@@ -21,7 +21,7 @@ app.config['MONGO_URI'] = 'mongodb+srv://carlasendra:csb@cluster0-le5v0.mongodb.
 mongo = PyMongo(app)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
 
 
 @app.route('/products/')
@@ -46,18 +46,32 @@ def product_detail(product_id):
                            product=product)
 
 
-@app.route(
-    '/products/<product_id>/edit/',
-    methods=['GET', 'POST'])
+@app.route('/products/<product_id>/edit/', methods=['GET', 'POST'])
 @login_required
 def product_edit(product_id):
-    return 'Form to edit product #.'.format(product_id)
+    """Provide HTML form to edit a given product."""
+    product = mongo.db.products.find_one({"_id": ObjectId(product_id)})
+    if product is None:
+        abort(404)
+    form = ProductForm(request.form, data=product)
+    if request.method == 'POST' and form.validate():
+        mongo.db.products.replace_one(product, form.data)
+        # Success. Send the user back to the detail view.
+        return redirect(url_for('products_list'))
+    return render_template('product/edit.html', form=form)
 
 
 @app.route('/products/<product_id>/delete/', methods=['DELETE'])
 @login_required
 def product_delete(product_id):
-    raise NotImplementedError('DELETE')
+    """Delete record using HTTP DELETE, respond with JSON."""
+    result = mongo.db.products.delete_one({"_id": ObjectId(product_id)})
+    if result.deleted_count == 0:
+        # Abort with Not Found, but with simple JSON response.
+        response = jsonify({'status': 'Not Found'})
+        response.status = 404
+        return response
+    return jsonify({'status': 'OK'})
 
 
 @app.route('/products/create/', methods=['GET', 'POST'])
